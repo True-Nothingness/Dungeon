@@ -30,11 +30,6 @@ const userSchema = new mongoose.Schema({
   maxHp: { type: Number, default: 100 },
   xp: { type: Number, default: 0 },
   gold: { type: Number, default: 0 },
-  inventory: [{
-    itemType: { type: String, required: true },
-    itemName: { type: String, required: true },
-    quantity: { type: Number, required: true, default: 1 }
-  }],
   lastLogin: { type: Date, default: Date.now },
   tasks: { type: [taskSchema], default: [] },
   selectedCharacter: String,
