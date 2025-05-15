@@ -8,6 +8,7 @@ const taskRoutes = require('./routes/task');
 const petRoutes = require('./routes/pet');
 const battleRoutes = require('./routes/battle');
 const itemRoutes = require('./routes/item');
+const characterRoutes = require('./routes/characters');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +22,7 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/pets', petRoutes);
 app.use('/api/battle', battleRoutes);
 app.use('/api/items', itemRoutes);
+app.use('/api/characters', characterRoutes);
 
 // Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)

@@ -13,9 +13,13 @@ exports.register = async (req, res) => {
     try {
       const existingUser = await User.findOne({ $or: [{ username }, { email }] });
       if (existingUser) {
-        return res.status(400).json({ message: 'Username or email already exists' });
+        if (existingUser.username === username) {
+          return res.status(400).json({ message: 'Username already exists' });
+        } else {
+          return res.status(400).json({ message: 'Email already exists' });
+        }
       }
-  
+
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = new User({ username, email, password: hashedPassword });
       await user.save();
@@ -80,7 +84,7 @@ exports.pickCharacter = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(req.user.id); // Get the user from the database
+    const user = await User.findById(req.user.id);
 
     // Prevent changing the character if one is already selected
     if (user.selectedCharacter) {
