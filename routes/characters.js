@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const constants = require('./constants');
+const constants = require('./data/constants');
 
 router.get('/characters', (req, res) => {
   res.json({
