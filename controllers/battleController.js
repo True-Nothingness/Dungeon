@@ -56,7 +56,7 @@ exports.startDungeonRun = async (req, res) => {
     }
 
     // Post-run updates
-    user.hp = userHP > 0 ? userHP : Math.max(Math.floor(user.maxHp * 0.5), 1); // Reduce to 50% if lost
+    user.hp = userHP > 0 ? userHP : Math.max(Math.floor(user.maxHp * 0.25), 1); // Reduce to 25% if lost
     user.xp += totalXP;
     user.gold += totalGold;
     const levelUp = applyLevelUps(user);

@@ -10,9 +10,9 @@ function getXPRequiredForLevel(level) {
       user.xp -= xpRequired;
       user.level += 1;
   
-      user.atk += 10;
-      user.def += 10;
-      user.maxHp += 10;
+      user.atk += 2;
+      user.def += 1;
+      user.maxHp += 15;
       user.hp = user.maxHp; // Full heal
   
       xpRequired = getXPRequiredForLevel(user.level);

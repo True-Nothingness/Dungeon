@@ -104,16 +104,16 @@ exports.toggleTaskCompletion = async (req, res) => {
       let expEarned = 0;
       switch (task.difficulty) {
         case 'easy':
-          goldEarned = 1;
+          goldEarned = 8;
           expEarned = 10;
           break;
         case 'medium':
-          goldEarned = 2;
-          expEarned = 20;
+          goldEarned = 12;
+          expEarned = 25;
           break;
         case 'hard':
-          goldEarned = 3;
-          expEarned = 30;
+          goldEarned = 15;
+          expEarned = 40;
           break;
       }
       user.gold += goldEarned;
