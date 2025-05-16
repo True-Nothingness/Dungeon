@@ -36,13 +36,25 @@ exports.addTask = async (req, res) => {
 
 // Get Task
 exports.getTasks = async (req, res) => {
-    try {
-      const user = await User.findById(req.user.id);
-      res.status(200).json(user.tasks);
-    } catch (err) {
-      res.status(500).json({ message: "Server error" });
-    }
-  };
+  try {
+    const user = await User.findById(req.user.id);
+    const tasks = user.tasks.filter(task => task.type === 'task');
+    res.status(200).json(tasks);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getDailies = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    const dailies = user.tasks.filter(task => task.type === 'daily');
+    res.status(200).json(dailies);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 // Edit Task
 exports.editTask = async (req, res) => {
@@ -106,7 +118,7 @@ exports.toggleTaskCompletion = async (req, res) => {
       }
       user.gold += goldEarned;
       user.xp += expEarned;
-      applyLevelUps(user);
+      const leveledUp = applyLevelUps(user);
     }
 
     task.completed = !task.completed;
@@ -116,6 +128,7 @@ exports.toggleTaskCompletion = async (req, res) => {
       message: `Task marked as ${task.completed ? 'completed' : 'incomplete'}`,
       completed: task.completed,
       currentGold: user.gold,
+      leveledUp
     });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });

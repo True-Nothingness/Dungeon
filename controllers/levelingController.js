@@ -4,6 +4,7 @@ function getXPRequiredForLevel(level) {
   
   function applyLevelUps(user) {
     let xpRequired = getXPRequiredForLevel(user.level);
+    let leveledUp = false;
   
     while (user.xp >= xpRequired) {
       user.xp -= xpRequired;
@@ -11,11 +12,13 @@ function getXPRequiredForLevel(level) {
   
       user.atk += 10;
       user.def += 10;
-      user.maxHp += 10; // Make sure user has a maxHp field
+      user.maxHp += 10;
       user.hp = user.maxHp; // Full heal
   
       xpRequired = getXPRequiredForLevel(user.level);
+      leveledUp = true;
     }
+    return leveledUp;
   }
   
   module.exports = { applyLevelUps };

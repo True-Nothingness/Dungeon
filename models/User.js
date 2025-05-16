@@ -3,15 +3,17 @@ const mongoose = require("mongoose");
 const taskSchema = new mongoose.Schema({
   title: String,
   difficulty: {
-  type: String,
-  enum: ["easy", "medium", "hard"],
+    type: String,
+    enum: ["easy", "medium", "hard"],
   },
   type: {
-  type: String,
-  enum: ["task", "daily"],
+    type: String,
+    enum: ["task", "daily"],
   },
   completed: Boolean,
+  deadline: Date, 
 });
+
 
 const petSchema = new mongoose.Schema({
   name: String,

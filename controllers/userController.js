@@ -41,17 +41,8 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
-    // Check for daily punishment
-    applyDailyPunishment(user);
-    const result = checkPetAbandonment(user);
-    user.lastLogin = new Date();
-    await user.save();
-
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.json({
-      token,
-      petLeft: result.petLeft
-    });
+    res.json({ token });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -60,11 +51,60 @@ exports.login = async (req, res) => {
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    res.json(user);
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const lastLogin = new Date(user.lastLogin || 0);
+
+    let petLeft = false;
+    let hpLost = 0;
+    let resetOccurred = false;
+
+    // Run daily punishment, pet abandonment, and daily reset only once per day
+    if (lastLogin < todayStart) {
+      const uncompletedDailies = user.tasks.filter(task => task.type === "daily" && !task.completed);
+      const overdueTasks = user.tasks.filter(
+      task => task.type === "task" && !task.completed && task.deadline && new Date(task.deadline) < now);
+
+      const missedCount = uncompletedDailies.length + overdueTasks.length;
+
+      if (missedCount > 0) {
+        hpLost = 10 * missedCount;
+        user.hp -= hpLost;
+        if (user.hp <= 0) {
+          user.hp = 0;
+          user.level = Math.max(1, user.level - 1);
+        }
+      }
+
+      // Pet abandonment check
+      if (user.selectedPet && user.selectedPet.acquiredAt) {
+        const diffDays = Math.floor((now - lastLogin) / (1000 * 60 * 60 * 24));
+        if (diffDays >= 7) {
+          user.selectedPet = null;
+          petLeft = true;
+        }
+      }
+
+      // Reset dailies
+      resetOccurred = resetDailies(user);
+    }
+
+    user.lastLogin = now;
+    await user.save();
+
+    res.json({
+      user,
+      petLeft,
+      hpLost,
+      resetOccurred
+    });
+
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
 
 exports.updateUser = async (req, res) => {
   try {
@@ -143,39 +183,18 @@ exports.pickPet = async (req, res) => {
   }
 };
 
-const applyDailyPunishment = (user) => {
-  const today = new Date().toDateString();
-  const lastLogin = new Date(user.lastLogin).toDateString();
+const resetDailies = (user) => {
+  if (!Array.isArray(user.tasks)) return false;
 
-  if (today !== lastLogin) {
-    const uncompletedDailies = user.tasks.filter(
-      task => task.type === "daily" && !task.completed
-    );
-
-    if (uncompletedDailies.length > 0) {
-      const hpLoss = 10 * uncompletedDailies.length; // 10 HP per missed daily
-      user.hp -= hpLoss;
-      if (user.hp < 0) {
-        user.hp = 0;
-        user.level = Math.max(1, user.level - 1); // Prevent level from dropping below 1
-      }      
+  let resetAny = false;
+  user.tasks.forEach(task => {
+    if (task.type === 'daily' && task.completed) {
+      task.completed = false;
+      resetAny = true;
     }
-  }
-};
+  });
 
-const checkPetAbandonment = (user) => {
-  if (!user.selectedPet || !user.selectedPet.acquiredAt) return { petLeft: false };
-
-  const lastLogin = new Date(user.lastLogin);
-  const now = new Date();
-  const diffDays = Math.floor((now - lastLogin) / (1000 * 60 * 60 * 24));
-
-  if (diffDays >= 7) {
-    user.selectedPet = null;
-    return { petLeft: true }; 
-  }
-
-  return { petLeft: false };
+  return resetAny;
 };
 
 
