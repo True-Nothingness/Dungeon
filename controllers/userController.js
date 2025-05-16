@@ -104,8 +104,6 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-
-
 exports.updateUser = async (req, res) => {
   try {
     const updatedUser = await User.findByIdAndUpdate(req.user.id, req.body, { new: true });
