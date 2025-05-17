@@ -53,14 +53,15 @@ exports.getProfile = async (req, res) => {
     const user = await User.findById(req.user.id);
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const lastLogin = new Date(user.lastLogin || 0);
+    const lastLogin = user.lastLogin ? new Date(user.lastLogin) : new Date(0);
+    const lastLoginDay = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate());
 
     let petLeft = false;
     let hpLost = 0;
     let resetOccurred = false;
 
     // Run daily punishment, pet abandonment, and daily reset only once per day
-    if (lastLogin < todayStart) {
+    if (lastLoginDay < todayStart) {
       const uncompletedDailies = user.tasks.filter(task => task.type === "daily" && !task.completed);
       const overdueTasks = user.tasks.filter(
       task => task.type === "task" && !task.completed && task.deadline && new Date(task.deadline) < now);
