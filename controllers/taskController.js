@@ -88,7 +88,6 @@ exports.editTask = async (req, res) => {
   }
 };
 
-// Toggle Task Completion (with rewards)
 exports.toggleTaskCompletion = async (req, res) => {
   const { taskId } = req.params;
 
@@ -97,6 +96,8 @@ exports.toggleTaskCompletion = async (req, res) => {
     const task = user.tasks.id(taskId);
 
     if (!task) return res.status(404).json({ message: 'Task not found' });
+
+    let leveledUp = false; // <-- Declare here
 
     // Only reward if marking as completed
     if (!task.completed) {
@@ -118,7 +119,7 @@ exports.toggleTaskCompletion = async (req, res) => {
       }
       user.gold += goldEarned;
       user.xp += expEarned;
-      const leveledUp = applyLevelUps(user);
+      leveledUp = applyLevelUps(user); // <-- Assign result to existing variable
     }
 
     task.completed = !task.completed;
@@ -131,6 +132,7 @@ exports.toggleTaskCompletion = async (req, res) => {
       leveledUp
     });
   } catch (err) {
+    console.error("Toggle Task Error:", err); // <== Add this for easier debugging
     res.status(500).json({ message: 'Server error' });
   }
 };
