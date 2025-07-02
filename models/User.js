@@ -38,16 +38,16 @@ const userSchema = new mongoose.Schema({
   selectedPet: {
   name: String,
   species: String,
-  acquiredAt: { type: Date, default: Date.now },
-  resetPasswordToken: { type: String },
-  resetPasswordExpires: { type: Date }
+  acquiredAt: { type: Date, default: Date.now }
 },
   inventory: [
   {
     itemName: String,
     quantity: Number,
   }
-]
+],
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date }
 });
 
 module.exports = mongoose.model("User", userSchema);
