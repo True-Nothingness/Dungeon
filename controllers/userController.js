@@ -211,8 +211,7 @@ exports.resetPassword = async (req, res) => {
     }
 
     // Hash new password
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
+    user.password = await bcrypt.hash(password, 10);
 
     // Clear reset token
     user.resetPasswordToken = undefined;
