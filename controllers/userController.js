@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { allowedCharacters, characterStats } = require('../data/constants');
 const { allowedPets } = require('../data/constants');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 exports.register = async (req, res) => {
     const { username, email, password } = req.body;
@@ -145,40 +147,83 @@ exports.pickCharacter = async (req, res) => {
   }
 };
 
-exports.pickPet = async (req, res) => {
-  const { name, species } = req.body;
-
-  // Check if the name and species are provided
-  if (!name || !species) {
-    return res.status(400).json({ message: "Name and species are required" });
-  }
-
-  // Check if the species is allowed
-  const isPetAllowed = allowedPets.includes(species);
-
-  if (!isPetAllowed) {
-    return res.status(400).json({ message: "This pet species is not allowed" });
-  }
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
 
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findOne({ email });
 
-    // Check if the user already has a pet
-    if (user.selectedPet && user.selectedPet.name) {
-      return res.status(400).json({ message: "You already have a pet" });
+    if (!user) {
+      return res.status(200).json({ message: "If the email exists, a reset link has been sent." }); // Safe generic response
     }
 
-    // Assign the pet to the user
-    user.selectedPet = {
-      name,
-      species,
-      acquiredAt: new Date()
-    };
+    // Generate random token
+    const token = crypto.randomBytes(32).toString('hex');
+
+    // Set token + expiration
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 1000 * 60 * 60; // 1 hour
+    await user.save();
+
+    // Create reset URL
+    const resetUrl = `https://truenothingness.id.vn/reset-password?token=${token}`;
+
+    // Send email (placeholder)
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    await transporter.sendMail({
+      to: user.email,
+      from: process.env.EMAIL_USER,
+      subject: 'Reset Your Dungeon of Habits Password',
+      html: `
+        <h2>Password Reset</h2>
+        <p>Click the link below to reset your password:</p>
+        <a href="${resetUrl}">${resetUrl}</a>
+        <p>This link will expire in 1 hour.</p>
+      `
+    });
+
+    res.status(200).json({ message: 'Reset email sent if account exists' });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { token, password } = req.body;
+
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() } 
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+
+    // Hash new password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+
+    // Clear reset token
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
 
     await user.save();
-    res.status(200).json({ message: "Pet picked successfully", pet: user.selectedPet });
+
+    res.status(200).json({ message: 'Password reset successful' });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
   }
 };
 

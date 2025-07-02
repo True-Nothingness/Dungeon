@@ -38,7 +38,9 @@ const userSchema = new mongoose.Schema({
   selectedPet: {
   name: String,
   species: String,
-  acquiredAt: { type: Date, default: Date.now }
+  acquiredAt: { type: Date, default: Date.now },
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date }
 },
   inventory: [
   {
