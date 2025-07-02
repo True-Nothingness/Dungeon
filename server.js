@@ -29,9 +29,12 @@ mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log('✅ Connected to MongoDB Atlas'))
 .catch((err) => console.error('❌ MongoDB connection error:', err));
 
-// Test route
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Optional: fallback route
 app.get('/', (req, res) => {
-  res.send('Dungeon server is running!');
+  res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 // Start server
