@@ -33,11 +33,12 @@ mongoose.connect(process.env.MONGO_URI)
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Optional: fallback route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/index.html'));
 });
-
+app.get('/reset-password', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/reset-password.html'));
+});
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server listening on port ${PORT}`);
