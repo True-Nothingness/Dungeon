@@ -169,7 +169,7 @@ exports.forgotPassword = async (req, res) => {
     const resetUrl = `https://truenothingness.id.vn/reset-password?token=${token}`;
 
     // Send email (placeholder)
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
     secure: false,
