@@ -4,7 +4,8 @@ const User = require('../models/User');
 const { allowedCharacters, characterStats } = require('../data/constants');
 const { allowedPets } = require('../data/constants');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 exports.register = async (req, res) => {
     const { username, email, password } = req.body;
@@ -154,37 +155,19 @@ exports.forgotPassword = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(200).json({ message: "If the email exists, a reset link has been sent." }); // Safe generic response
+      return res.status(200).json({ message: "If the email exists, a reset link has been sent." });
     }
 
-    // Generate random token
     const token = crypto.randomBytes(32).toString('hex');
-
-    // Set token + expiration
     user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 1000 * 60 * 60; // 1 hour
+    user.resetPasswordExpires = Date.now() + 1000 * 60 * 60;
     await user.save();
 
-    // Create reset URL
     const resetUrl = `https://truenothingness.id.vn/reset-password?token=${token}`;
 
-    // Send email (placeholder)
-    const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    },
-    connectionTimeout: 60000, // 60 seconds
-    greetingTimeout: 30000,   // 30 seconds
-    socketTimeout: 60000,     // 60 seconds
-  });
-
-    await transporter.sendMail({
+    await resend.emails.send({
+      from: 'Dungeon of Habits <no-reply@truenothingness.id.vn>',
       to: user.email,
-      from: process.env.EMAIL_USER,
       subject: 'Reset Your Dungeon of Habits Password',
       html: `
         <h2>Password Reset</h2>
