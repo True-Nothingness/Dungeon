@@ -104,13 +104,20 @@ exports.getDungeons = async (req, res) => {
 // CREATE dungeon
 exports.createDungeon = async (req, res) => {
   try {
-    const dungeon = new Dungeon(req.body);
+    const { floor, monsters } = req.body;
+    if (!floor || !monsters || !Array.isArray(monsters)) {
+      return res.status(400).json({ error: "Floor and monsters array required" });
+    }
+
+    const dungeon = new Dungeon({ floor, monsters });
     await dungeon.save();
-    res.status(201).json(dungeon);
+
+    res.json(dungeon);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
+
 
 // UPDATE dungeon
 exports.updateDungeon = async (req, res) => {
