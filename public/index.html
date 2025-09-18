@@ -1,38 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dungeon of Habits</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dungeon of Habits</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Caesar Dressing Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Caesar+Dressing&display=swap" rel="stylesheet">
+    <style>
+        h1, h2, h3 {
+        font-family: 'Caesar Dressing', cursive;
+        }
+        /* Parallax backgrounds */
+        .parallax {
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        }
+        .bg-dungeon {
+        background-image: url(background.jpg);
+        }
+        .bg-boss {
+        background-image: url(background.jpg);
+        }
+        .device-frame {
+        border: 12px solid #333;
+        border-radius: 24px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+        overflow: hidden;
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-b from-gray-900 to-gray-800 text-white min-h-screen flex flex-col">
+<body class="bg-gradient-to-b from-gray-900 to-black text-white min-h-screen flex flex-col font-sans">
 
-  <!-- Header -->
-  <header class="p-6 bg-gray-900 shadow-md">
-    <div class="container mx-auto text-center">
-      <h1 class="text-4xl font-bold">Dungeon of Habits</h1>
-      <p class="text-gray-300 mt-2 text-lg">Build habits. Fight monsters. Level up your life.</p>
+    <!-- Header -->
+    <header class="p-6 bg-black/80 backdrop-blur-md fixed w-full z-50">
+        <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-3xl md:text-4xl text-yellow-400 tracking-widest">
+            Dungeon of Habits
+        </h1>
+        <a href="#download" class="bg-black-500 hover:bg-yellow-600 text-black font-bold px-4 py-2 rounded-lg shadow-md transition">
+            Admin
+        </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="h-screen flex items-center justify-center parallax bg-dungeon relative text-center">
+    <div class="px-6 max-w-2xl">
+        <h2 class="text-5xl md:text-6xl text-yellow-300 drop-shadow-lg">
+        Turn Your Daily Tasks into Epic Progress
+        </h2>
+        <p class="mt-6 text-lg md:text-xl text-gray-200">
+        🌟 Improve your habits, dive into the dungeon, watch your character advance, and enjoy your pet’s company.
+        </p>
+        <a href="#download" class="mt-10 inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:scale-105 transition transform">
+        🎮 Start the Adventure
+        </a>
     </div>
-  </header>
+    </section>
 
-  <!-- Main -->
-  <main class="flex-grow container mx-auto flex flex-col items-center justify-center text-center px-6 py-16">
-    <h2 class="text-3xl font-semibold mb-4">An RPG-powered habit tracker</h2>
-    <p class="text-lg text-gray-300 max-w-xl mb-8">
-      Dungeon of Habits turns your daily tasks into epic battles. Train consistency, defeat dungeon bosses, and protect your pet with real-life progress.
-    </p>
+  <!-- Features -->
+    <section class="py-20 bg-gray-900">
+    <div class="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+        
+        <div class="bg-gray-800 p-6 rounded-2xl shadow-lg h-full flex flex-col justify-between transition-transform transform hover:-translate-y-2">
+        <h3 class="text-xl text-yellow-400">📈 Epic Progress</h3>
+        <p class="mt-2 text-gray-300">See your real-life growth reflected as your character advances.</p>
+        </div>
+        
+        <div class="bg-gray-800 p-6 rounded-2xl shadow-lg h-full flex flex-col justify-between transition-transform transform hover:-translate-y-2">
+        <h3 class="text-xl text-red-400">🕹️ Dungeon Adventure</h3>
+        <p class="mt-2 text-gray-300">Turn tasks into challenges and quests inside the dungeon.</p>
+        </div>
+        
+        <div class="bg-gray-800 p-6 rounded-2xl shadow-lg h-full flex flex-col justify-between transition-transform transform hover:-translate-y-2">
+        <h3 class="text-xl text-green-400">🧙 Character Growth</h3>
+        <p class="mt-2 text-gray-300">Level up your hero as you stay consistent with your habits.</p>
+        </div>
+        
+        <div class="bg-gray-800 p-6 rounded-2xl shadow-lg h-full flex flex-col justify-between transition-transform transform hover:-translate-y-2">
+        <h3 class="text-xl text-blue-400">🐾 Loyal Pet</h3>
+        <p class="mt-2 text-gray-300">Take care of your pet, who grows stronger with your progress.</p>
+        </div>
 
-    <!-- Call to Action -->
-    <a href="#" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-all">
-      Download the App
-    </a>
-  </main>
+    </div>
+    </section>
 
-  <!-- Footer -->
-  <footer class="bg-gray-900 p-4 text-sm text-gray-400 text-center">
-    © 2025 Dungeon of Habits. All rights reserved.
-  </footer>
+
+    <!-- Demo Section -->
+    <section class="py-20 bg-gradient-to-b from-gray-800 to-gray-900 text-center">
+        <h2 class="text-3xl text-yellow-300 mb-10">See the Adventure</h2>
+        <div class="container mx-auto flex flex-col md:flex-row justify-center items-center gap-10">
+        <div class="device-frame w-64 h-[500px] bg-black">
+            <img src="https://i.ibb.co/DMrk6Q0/app-screen1.jpg" class="w-full h-full object-cover" alt="App screen 1" />
+        </div>
+        <div class="device-frame w-64 h-[500px] bg-black">
+            <img src="https://i.ibb.co/mzKZnby/app-screen2.jpg" class="w-full h-full object-cover" alt="App screen 2" />
+        </div>
+        <div class="device-frame w-64 h-[500px] bg-black">
+            <img src="https://i.ibb.co/Y2QnGkP/app-screen3.jpg" class="w-full h-full object-cover" alt="App screen 3" />
+        </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-20 bg-gray-900 text-center">
+        <h2 class="text-3xl text-yellow-300 mb-10">What Players Say</h2>
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-gray-800 p-6 rounded-xl shadow-md">
+            <p class="italic">“Tracking my habits finally feels fun. My character’s growth keeps me going!”</p>
+            <h4 class="mt-4 font-semibold text-gray-200">— Alex</h4>
+        </div>
+        <div class="bg-gray-800 p-6 rounded-xl shadow-md">
+            <p class="italic">“Every little task feels like progress. My pet is adorable too 🐾.”</p>
+            <h4 class="mt-4 font-semibold text-gray-200">— Jamie</h4>
+        </div>
+        <div class="bg-gray-800 p-6 rounded-xl shadow-md">
+            <p class="italic">“Dungeon battles make chores exciting. I never skip quests anymore.”</p>
+            <h4 class="mt-4 font-semibold text-gray-200">— Taylor</h4>
+        </div>
+        </div>
+    </section>
+
+    <!-- Final CTA Boss Section -->
+    <section id="download" class="h-screen flex flex-col items-center justify-center parallax bg-boss text-center relative">
+        <div class="bg-black/70 p-10 rounded-2xl shadow-2xl">
+        <h2 class="text-4xl text-red-400 mb-6">Your Dungeon Awaits</h2>
+        <p class="text-lg text-gray-200 mb-8">Step into the adventure. Improve your habits, level up, and protect your pet.</p>
+        <a href="#" class="bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-4 rounded-xl shadow-xl transition">
+            ⚡ Download Now
+        </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black p-6 text-sm text-gray-400 text-center border-t border-gray-700">
+        © 2025 Dungeon of Habits · <span class="italic">“Every habit is a step deeper into the dungeon.”</span>
+    </footer>
 
 </body>
 </html>
