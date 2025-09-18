@@ -3,6 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Dungeon of Habits Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Caesar+Dressing&display=swap" rel="stylesheet">
+  <style>
+    h1, h2, h3, h4 {
+      font-family: 'Caesar Dressing', cursive;
+    }
+  </style>
   <script>
     let token = null;
     const API_BASE = "/api/admin";
@@ -20,8 +27,9 @@
       const data = await res.json();
       if (data.token) {
         token = data.token;
-        document.getElementById("login-section").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
+        document.getElementById("login-section").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+        loadUsers();
         loadMonsters();
         loadDungeons();
       } else {
@@ -29,6 +37,36 @@
       }
     }
 
+    // ---------- USERS ----------
+    async function loadUsers() {
+      const res = await fetch(`${API_BASE}/users`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const users = await res.json();
+      const list = document.getElementById("user-list");
+      list.innerHTML = "";
+      users.forEach(u => {
+        list.innerHTML += `
+          <tr class="border-b border-gray-700">
+            <td class="px-4 py-2">${u.username}</td>
+            <td class="px-4 py-2">Lvl ${u.level} | Gold: ${u.gold}</td>
+            <td class="px-4 py-2">
+              <button class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-white"
+                onclick="deleteUser('${u._id}')">❌ Delete</button>
+            </td>
+          </tr>`;
+      });
+    }
+
+    async function deleteUser(id) {
+      await fetch(`${API_BASE}/users/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      loadUsers();
+    }
+
+    // ---------- MONSTERS ----------
     async function loadMonsters() {
       const res = await fetch(`${API_BASE}/monsters`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -37,10 +75,15 @@
       const list = document.getElementById("monster-list");
       list.innerHTML = "";
       monsters.forEach(m => {
-        list.innerHTML += `<li>
-          ${m.name} (ATK: ${m.atk}, DEF: ${m.def}, HP: ${m.hp})
-          <button onclick="deleteMonster('${m._id}')">❌</button>
-        </li>`;
+        list.innerHTML += `
+          <tr class="border-b border-gray-700">
+            <td class="px-4 py-2">${m.name}</td>
+            <td class="px-4 py-2">ATK:${m.atk} DEF:${m.def} HP:${m.hp}</td>
+            <td class="px-4 py-2">
+              <button class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-white"
+                onclick="deleteMonster('${m._id}')">❌ Delete</button>
+            </td>
+          </tr>`;
       });
     }
 
@@ -54,10 +97,7 @@
 
       await fetch(`${API_BASE}/monsters`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name, atk, def, hp, xpReward, goldReward })
       });
       loadMonsters();
@@ -71,6 +111,7 @@
       loadMonsters();
     }
 
+    // ---------- DUNGEONS ----------
     async function loadDungeons() {
       const res = await fetch(`${API_BASE}/dungeons`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -80,10 +121,15 @@
       list.innerHTML = "";
       dungeons.forEach(d => {
         const monsterNames = d.monsters.map(m => m.name).join(", ");
-        list.innerHTML += `<li>
-          Floor ${d.floor} → Monsters: [${monsterNames}]
-          <button onclick="deleteDungeon('${d._id}')">❌</button>
-        </li>`;
+        list.innerHTML += `
+          <tr class="border-b border-gray-700">
+            <td class="px-4 py-2">Floor ${d.floor}</td>
+            <td class="px-4 py-2">${monsterNames}</td>
+            <td class="px-4 py-2">
+              <button class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-white"
+                onclick="deleteDungeon('${d._id}')">❌ Delete</button>
+            </td>
+          </tr>`;
       });
     }
 
@@ -92,10 +138,7 @@
       const monsterIds = document.getElementById("d-monsters").value.split(",");
       await fetch(`${API_BASE}/dungeons`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ floor, monsters: monsterIds })
       });
       loadDungeons();
@@ -110,40 +153,89 @@
     }
   </script>
 </head>
-<body>
+<body class="bg-gray-900 text-gray-200 min-h-screen">
   <!-- LOGIN -->
-  <section id="login-section">
-    <h2>Admin Login</h2>
-    <input id="username" placeholder="Username"><br>
-    <input id="password" type="password" placeholder="Password"><br>
-    <button onclick="adminLogin()">Login</button>
+  <section id="login-section" class="flex items-center justify-center h-screen">
+    <div class="bg-gray-800 p-8 rounded-xl shadow-lg w-80 text-center">
+      <h2 class="text-2xl text-yellow-400 mb-6">Admin Login</h2>
+      <input id="username" placeholder="Username" class="w-full mb-3 p-2 rounded bg-gray-700">
+      <input id="password" type="password" placeholder="Password" class="w-full mb-3 p-2 rounded bg-gray-700">
+      <button onclick="adminLogin()" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-4 py-2 rounded">
+        Login
+      </button>
+    </div>
   </section>
 
   <!-- DASHBOARD -->
-  <section id="dashboard" style="display:none;">
-    <h2>Admin Dashboard</h2>
+  <section id="dashboard" class="hidden p-8">
+    <h1 class="text-3xl text-yellow-400 mb-6">Dungeon of Habits Admin Dashboard</h1>
+
+    <!-- USERS -->
+    <div class="bg-gray-800 p-6 rounded-xl shadow-lg mb-8">
+      <h2 class="text-2xl text-blue-400 mb-4">👥 Manage Users</h2>
+      <table class="w-full text-left">
+        <thead>
+          <tr class="border-b border-gray-700">
+            <th class="px-4 py-2">Username</th>
+            <th class="px-4 py-2">Stats</th>
+            <th class="px-4 py-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="user-list"></tbody>
+      </table>
+    </div>
 
     <!-- MONSTERS -->
-    <h3>Manage Monsters</h3>
-    <ul id="monster-list"></ul>
-    <h4>Add Monster</h4>
-    <input id="m-name" placeholder="Name">
-    <input id="m-atk" placeholder="ATK">
-    <input id="m-def" placeholder="DEF">
-    <input id="m-hp" placeholder="HP">
-    <input id="m-xp" placeholder="XP Reward">
-    <input id="m-gold" placeholder="Gold Reward">
-    <button onclick="addMonster()">Add Monster</button>
+    <div class="bg-gray-800 p-6 rounded-xl shadow-lg mb-8">
+      <h2 class="text-2xl text-red-400 mb-4">👹 Manage Monsters</h2>
+      <table class="w-full text-left">
+        <thead>
+          <tr class="border-b border-gray-700">
+            <th class="px-4 py-2">Name</th>
+            <th class="px-4 py-2">Stats</th>
+            <th class="px-4 py-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="monster-list"></tbody>
+      </table>
 
-    <hr>
+      <h3 class="text-lg text-gray-300 mt-6 mb-2">➕ Add Monster</h3>
+      <div class="grid grid-cols-2 gap-2">
+        <input id="m-name" placeholder="Name" class="p-2 rounded bg-gray-700">
+        <input id="m-atk" placeholder="ATK" class="p-2 rounded bg-gray-700">
+        <input id="m-def" placeholder="DEF" class="p-2 rounded bg-gray-700">
+        <input id="m-hp" placeholder="HP" class="p-2 rounded bg-gray-700">
+        <input id="m-xp" placeholder="XP Reward" class="p-2 rounded bg-gray-700">
+        <input id="m-gold" placeholder="Gold Reward" class="p-2 rounded bg-gray-700">
+      </div>
+      <button onclick="addMonster()" class="mt-3 bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white">
+        Add Monster
+      </button>
+    </div>
 
     <!-- DUNGEONS -->
-    <h3>Manage Dungeons</h3>
-    <ul id="dungeon-list"></ul>
-    <h4>Add Dungeon</h4>
-    <input id="d-floor" placeholder="Floor">
-    <input id="d-monsters" placeholder="Monster IDs (comma separated)">
-    <button onclick="addDungeon()">Add Dungeon</button>
+    <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+      <h2 class="text-2xl text-green-400 mb-4">🏰 Manage Dungeons</h2>
+      <table class="w-full text-left">
+        <thead>
+          <tr class="border-b border-gray-700">
+            <th class="px-4 py-2">Floor</th>
+            <th class="px-4 py-2">Monsters</th>
+            <th class="px-4 py-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="dungeon-list"></tbody>
+      </table>
+
+      <h3 class="text-lg text-gray-300 mt-6 mb-2">➕ Add Dungeon</h3>
+      <div class="grid grid-cols-2 gap-2">
+        <input id="d-floor" placeholder="Floor" class="p-2 rounded bg-gray-700">
+        <input id="d-monsters" placeholder="Monster IDs (comma separated)" class="p-2 rounded bg-gray-700 col-span-2">
+      </div>
+      <button onclick="addDungeon()" class="mt-3 bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white">
+        Add Dungeon
+      </button>
+    </div>
   </section>
 </body>
 </html>
