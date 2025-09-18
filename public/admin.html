@@ -79,7 +79,7 @@
   monsters.forEach(m => {
     list.innerHTML += `
       <tr class="border-b border-gray-700">
-        <td class="px-4 py-2">${m.name}</td>
+        <td class="px-4 py-2">${m.name}\nID: ${m._id}</td>
         <td class="px-4 py-2">ATK: ${m.atk}, DEF: ${m.def}, HP: ${m.hp}, XP: ${m.xpReward}, Gold: ${m.goldReward}</td>
         <td class="px-4 py-2">
           <button onclick="deleteMonster('${m._id}')" class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-white">❌</button>
