@@ -43,6 +43,9 @@ app.get('/', (req, res) => {
 app.get('/reset-password', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/reset-password.html'));
 });
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "admin.html"));
+});
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server listening on port ${PORT}`);
