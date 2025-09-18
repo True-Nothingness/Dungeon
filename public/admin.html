@@ -122,20 +122,35 @@
   }
 
   async function addMonster() {
-    const name = document.getElementById("m-name").value;
-    const atk = parseInt(document.getElementById("m-atk").value);
-    const def = parseInt(document.getElementById("m-def").value);
-    const hp = parseInt(document.getElementById("m-hp").value);
-    const xpReward = parseInt(document.getElementById("m-xp").value);
-    const goldReward = parseInt(document.getElementById("m-gold").value);
+  const name = document.getElementById("m-name").value;
+  const atk = document.getElementById("m-atk").value;
+  const def = document.getElementById("m-def").value;
+  const hp = document.getElementById("m-hp").value;
+  const xp = document.getElementById("m-xp").value;
+  const gold = document.getElementById("m-gold").value;
 
-    await fetch(`${API_BASE}/monsters`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ name, atk, def, hp, xpReward, goldReward })
-    });
+  const res = await fetch("/admin/monsters", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, atk, def, hp, xpReward: xp, goldReward: gold })
+  });
+
+  if (res.ok) {
+    Swal.fire("Success", "Monster added!", "success");
     loadMonsters();
+
+    // clear inputs
+    document.getElementById("m-name").value = "";
+    document.getElementById("m-atk").value = "";
+    document.getElementById("m-def").value = "";
+    document.getElementById("m-hp").value = "";
+    document.getElementById("m-xp").value = "";
+    document.getElementById("m-gold").value = "";
+  } else {
+    Swal.fire("Error", "Failed to add monster", "error");
   }
+}
+
 
   async function deleteMonster(id) {
     await fetch(`${API_BASE}/monsters/${id}`, {
@@ -172,37 +187,45 @@
   }
 
   async function addDungeon() {
-  const floor = document.getElementById("d-floor").value;
+  const floorStr = document.getElementById("d-floor").value.trim();
+  const floor = parseInt(floorStr, 10);
   const monstersInput = document.getElementById("d-monsters").value;
 
-  // Split by comma, trim whitespace
-  const monsterIds = monstersInput.split(",").map(id => id.trim()).filter(id => id.length > 0);
+  const monsterIds = monstersInput
+    .split(",")
+    .map(id => id.trim())
+    .filter(id => id.length > 0);
 
-  if (!floor || monsterIds.length === 0) {
-    Swal.fire("Error", "Please enter floor and at least one monster ID.", "error");
+  if (!floorStr || isNaN(floor) || monsterIds.length === 0) {
+    Swal.fire("Error", "Please enter a valid floor number and at least one monster ID.", "error");
     return;
   }
 
   try {
-    const res = await fetch("/admin/dungeons", {
+    const res = await fetch(`${API_BASE}/dungeons`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
       body: JSON.stringify({ floor, monsters: monsterIds })
     });
 
+    const data = await res.json();
+
     if (res.ok) {
       Swal.fire("Success", "Dungeon added!", "success");
-      loadDungeons(); // reload table
+      loadDungeons();
       document.getElementById("d-floor").value = "";
       document.getElementById("d-monsters").value = "";
     } else {
-      const err = await res.json();
-      Swal.fire("Error", err.error || "Failed to add dungeon", "error");
+      Swal.fire("Error", data.error || data.message || "Failed to add dungeon", "error");
     }
   } catch (err) {
     Swal.fire("Error", err.message, "error");
   }
 }
+
 
   async function deleteDungeon(id) {
     await fetch(`${API_BASE}/dungeons/${id}`, {
