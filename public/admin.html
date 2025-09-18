@@ -11,157 +11,197 @@
     }
   </style>
   <script>
-    let token = null;
-    const API_BASE = "/api/admin";
+  let token = null;
+  const API_BASE = "/api/admin";
+  let confirmAction = null;
 
-    async function adminLogin() {
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
+  // ---------- LOGIN ----------
+  async function adminLogin() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
 
-      const res = await fetch(`${API_BASE}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      });
+    const res = await fetch(`${API_BASE}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
 
-      const data = await res.json();
-      if (data.token) {
-        token = data.token;
-        document.getElementById("login-section").classList.add("hidden");
-        document.getElementById("dashboard").classList.remove("hidden");
-        loadUsers();
-        loadMonsters();
-        loadDungeons();
-      } else {
-        alert("Login failed: " + data.message);
-      }
+    const data = await res.json();
+    if (data.token) {
+      token = data.token;
+      document.getElementById("login-section").classList.add("hidden");
+      document.getElementById("dashboard").classList.remove("hidden");
+      loadUsers();
+      loadMonsters();
+      loadDungeons();
+    } else {
+      alert("Login failed: " + data.message);
     }
+  }
 
-    // ---------- USERS ----------
-    async function loadUsers() {
-  const res = await fetch(`${API_BASE}/users`, {
-    headers: { Authorization: `Bearer ${token}` }
+  // ---------- CONFIRM MODAL ----------
+  function openConfirm(title, message, onConfirm) {
+    document.getElementById("confirm-title").textContent = title;
+    document.getElementById("confirm-message").textContent = message;
+    confirmAction = onConfirm;
+    document.getElementById("confirm-modal").classList.remove("hidden");
+  }
+
+  function closeConfirm() {
+    document.getElementById("confirm-modal").classList.add("hidden");
+    confirmAction = null;
+  }
+
+  // Close modal with ESC or outside click
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeConfirm();
   });
-  const users = await res.json();
-  const list = document.getElementById("user-list");
-  list.innerHTML = "";
-  users.forEach(u => {
-    list.innerHTML += `
-      <tr class="border-b border-gray-700">
-        <td class="px-4 py-2">${u.username}</td>
-        <td class="px-4 py-2">Email: ${u.email}, Lvl: ${u.level}, Gold: ${u.gold}</td>
-        <td class="px-4 py-2">
-          <button onclick="deleteUser('${u._id}')" class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-white">❌</button>
-        </td>
-      </tr>
-    `;
+  window.addEventListener("click", (e) => {
+    if (e.target.id === "confirm-modal") closeConfirm();
   });
-}
 
+  // ---------- USERS ----------
+  async function loadUsers() {
+    const res = await fetch(`${API_BASE}/users`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const users = await res.json();
+    const list = document.getElementById("user-list");
+    list.innerHTML = "";
+    users.forEach(u => {
+      list.innerHTML += `
+        <tr class="border-b border-gray-700">
+          <td class="px-4 py-2">${u.username}</td>
+          <td class="px-4 py-2">Email: ${u.email}, Lvl: ${u.level}, Gold: ${u.gold}</td>
+          <td class="px-4 py-2">
+            <button onclick="confirmDeleteUser('${u._id}', '${u.username}')"
+              class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-white">❌</button>
+          </td>
+        </tr>
+      `;
+    });
+  }
 
-    async function deleteUser(id) {
+  async function deleteUser(id) {
     await fetch(`${API_BASE}/users/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` }
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
     });
     loadUsers();
-    }
+  }
 
+  function confirmDeleteUser(id, username) {
+    openConfirm("Delete User", `Are you sure you want to delete user "${username}"?`, () => deleteUser(id));
+  }
 
-    // ---------- MONSTERS ----------
-    async function loadMonsters() {
-  const res = await fetch(`${API_BASE}/monsters`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  const monsters = await res.json();
-  const list = document.getElementById("monster-list");
-  list.innerHTML = "";
- monsters.forEach(m => {
-  list.innerHTML += `
-    <tr class="border-b border-gray-700">
-      <td class="px-4 py-2">
-        <div>${m.name}</div>
-        <div class="text-gray-400 text-sm">ID: ${m._id}</div>
-      </td>
-      <td class="px-4 py-2">
-        ATK: ${m.atk}, DEF: ${m.def}, HP: ${m.hp}, XP: ${m.xpReward}, Gold: ${m.goldReward}
-      </td>
-      <td class="px-4 py-2">
-        <button onclick="deleteMonster('${m._id}')" class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-white">❌</button>
-      </td>
-    </tr>
-  `;
-});
+  // ---------- MONSTERS ----------
+  async function loadMonsters() {
+    const res = await fetch(`${API_BASE}/monsters`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const monsters = await res.json();
+    const list = document.getElementById("monster-list");
+    list.innerHTML = "";
+    monsters.forEach(m => {
+      list.innerHTML += `
+        <tr class="border-b border-gray-700">
+          <td class="px-4 py-2">
+            <div>${m.name}</div>
+            <div class="text-gray-400 text-sm">ID: ${m._id}</div>
+          </td>
+          <td class="px-4 py-2">
+            ATK: ${m.atk}, DEF: ${m.def}, HP: ${m.hp}, XP: ${m.xpReward}, Gold: ${m.goldReward}
+          </td>
+          <td class="px-4 py-2">
+            <button onclick="confirmDeleteMonster('${m._id}', '${m.name}')"
+              class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-white">❌</button>
+          </td>
+        </tr>
+      `;
+    });
+  }
 
-}
+  async function addMonster() {
+    const name = document.getElementById("m-name").value;
+    const atk = parseInt(document.getElementById("m-atk").value);
+    const def = parseInt(document.getElementById("m-def").value);
+    const hp = parseInt(document.getElementById("m-hp").value);
+    const xpReward = parseInt(document.getElementById("m-xp").value);
+    const goldReward = parseInt(document.getElementById("m-gold").value);
 
+    await fetch(`${API_BASE}/monsters`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ name, atk, def, hp, xpReward, goldReward })
+    });
+    loadMonsters();
+  }
 
+  async function deleteMonster(id) {
+    await fetch(`${API_BASE}/monsters/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    loadMonsters();
+  }
 
-    async function addMonster() {
-      const name = document.getElementById("m-name").value;
-      const atk = parseInt(document.getElementById("m-atk").value);
-      const def = parseInt(document.getElementById("m-def").value);
-      const hp = parseInt(document.getElementById("m-hp").value);
-      const xpReward = parseInt(document.getElementById("m-xp").value);
-      const goldReward = parseInt(document.getElementById("m-gold").value);
+  function confirmDeleteMonster(id, name) {
+    openConfirm("Delete Monster", `Are you sure you want to delete monster "${name}"?`, () => deleteMonster(id));
+  }
 
-      await fetch(`${API_BASE}/monsters`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ name, atk, def, hp, xpReward, goldReward })
-      });
-      loadMonsters();
-    }
+  // ---------- DUNGEONS ----------
+  async function loadDungeons() {
+    const res = await fetch(`${API_BASE}/dungeons`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const dungeons = await res.json();
+    const list = document.getElementById("dungeon-list");
+    list.innerHTML = "";
+    dungeons.forEach(d => {
+      const monsterNames = d.monsters.map(m => m.name).join(", ");
+      list.innerHTML += `
+        <tr class="border-b border-gray-700">
+          <td class="px-4 py-2">Floor ${d.floor}</td>
+          <td class="px-4 py-2">${monsterNames}</td>
+          <td class="px-4 py-2">
+            <button onclick="confirmDeleteDungeon('${d._id}', '${d.floor}')"
+              class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-white">❌</button>
+          </td>
+        </tr>`;
+    });
+  }
 
-    async function deleteMonster(id) {
-      await fetch(`${API_BASE}/monsters/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      loadMonsters();
-    }
+  async function addDungeon() {
+    const floor = parseInt(document.getElementById("d-floor").value);
+    const monsterIds = document.getElementById("d-monsters").value.split(",");
+    await fetch(`${API_BASE}/dungeons`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ floor, monsters: monsterIds })
+    });
+    loadDungeons();
+  }
 
-    // ---------- DUNGEONS ----------
-    async function loadDungeons() {
-      const res = await fetch(`${API_BASE}/dungeons`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const dungeons = await res.json();
-      const list = document.getElementById("dungeon-list");
-      list.innerHTML = "";
-      dungeons.forEach(d => {
-        const monsterNames = d.monsters.map(m => m.name).join(", ");
-        list.innerHTML += `
-          <tr class="border-b border-gray-700">
-            <td class="px-4 py-2">Floor ${d.floor}</td>
-            <td class="px-4 py-2">${monsterNames}</td>
-            <td class="px-4 py-2">
-              <button class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-white"
-                onclick="deleteDungeon('${d._id}')">❌ Delete</button>
-            </td>
-          </tr>`;
-      });
-    }
+  async function deleteDungeon(id) {
+    await fetch(`${API_BASE}/dungeons/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    loadDungeons();
+  }
 
-    async function addDungeon() {
-      const floor = parseInt(document.getElementById("d-floor").value);
-      const monsterIds = document.getElementById("d-monsters").value.split(",");
-      await fetch(`${API_BASE}/dungeons`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ floor, monsters: monsterIds })
-      });
-      loadDungeons();
-    }
+  function confirmDeleteDungeon(id, floor) {
+    openConfirm("Delete Dungeon", `Are you sure you want to delete dungeon floor ${floor}?`, () => deleteDungeon(id));
+  }
 
-    async function deleteDungeon(id) {
-      await fetch(`${API_BASE}/dungeons/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      loadDungeons();
-    }
-  </script>
+  // ---------- INIT ----------
+  window.onload = function () {
+    document.getElementById("confirm-yes").onclick = function () {
+      if (confirmAction) confirmAction();
+      closeConfirm();
+    };
+  };
+</script>
 </head>
 <body class="bg-gray-900 text-gray-200 min-h-screen">
   <!-- LOGIN -->
@@ -247,5 +287,20 @@
       </button>
     </div>
   </section>
+  <!-- DELETE CONFIRM MODAL -->
+<div id="confirm-modal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="bg-gray-800 rounded-xl shadow-lg p-6 w-96 text-center">
+    <h3 id="confirm-title" class="text-xl font-semibold text-red-400 mb-4">Confirm Delete</h3>
+    <p id="confirm-message" class="text-gray-300 mb-6">Are you sure?</p>
+    <div class="flex justify-center gap-4">
+      <button onclick="closeConfirm()" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded text-white">
+        Cancel
+      </button>
+      <button id="confirm-yes" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white">
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
