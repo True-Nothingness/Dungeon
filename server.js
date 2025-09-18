@@ -11,7 +11,7 @@ const battleRoutes = require('./routes/battle');
 const itemRoutes = require('./routes/item');
 const characterRoutes = require('./routes/characters');
 const bodyParser = require("body-parser");
-const adminRoutes = require("./routes/adminRoutes");
+const adminRoutes = require("./routes/admin");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
