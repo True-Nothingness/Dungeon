@@ -23,7 +23,7 @@ exports.login = (req, res) => {
 // Get all users
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find().select("username email gold level pet");
+    const users = await User.find().select("username email gold level");
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
