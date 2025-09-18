@@ -8,6 +8,7 @@ router.post("/login", adminController.login);
 
 // --- User management ---
 router.get("/users", adminAuth, adminController.getUsers);
+router.delete("/users/:id", adminAuth, adminController.deleteUser);
 
 // --- Monster management ---
 router.get("/monsters", adminAuth, adminController.getMonsters);

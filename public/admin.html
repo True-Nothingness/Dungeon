@@ -39,53 +39,49 @@
 
     // ---------- USERS ----------
     async function loadUsers() {
-      const res = await fetch(`${API_BASE}/users`, {
+    const res = await fetch(`${API_BASE}/users`, {
         headers: { Authorization: `Bearer ${token}` }
-      });
-      const users = await res.json();
-      const list = document.getElementById("user-list");
-      list.innerHTML = "";
-      users.forEach(u => {
+    });
+    const users = await res.json();
+    const list = document.getElementById("user-list");
+    list.innerHTML = "";
+    users.forEach(u => {
         list.innerHTML += `
-          <tr class="border-b border-gray-700">
-            <td class="px-4 py-2">${u.username}</td>
-            <td class="px-4 py-2">Lvl ${u.level} | Gold: ${u.gold}</td>
-            <td class="px-4 py-2">
-              <button class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-white"
-                onclick="deleteUser('${u._id}')">❌ Delete</button>
-            </td>
-          </tr>`;
-      });
+        <li>
+            <strong>${u.username}</strong> (Level: ${u.level}, Gold: ${u.gold})  
+            <br><small>ID: ${u._id}</small>
+            <button onclick="deleteUser('${u._id}')">❌</button>
+        </li>`;
+    });
     }
 
     async function deleteUser(id) {
-      await fetch(`${API_BASE}/users/${id}`, {
+    await fetch(`${API_BASE}/users/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
-      });
-      loadUsers();
+    });
+    loadUsers();
     }
+
 
     // ---------- MONSTERS ----------
     async function loadMonsters() {
-      const res = await fetch(`${API_BASE}/monsters`, {
+    const res = await fetch(`${API_BASE}/monsters`, {
         headers: { Authorization: `Bearer ${token}` }
-      });
-      const monsters = await res.json();
-      const list = document.getElementById("monster-list");
-      list.innerHTML = "";
-      monsters.forEach(m => {
+    });
+    const monsters = await res.json();
+    const list = document.getElementById("monster-list");
+    list.innerHTML = "";
+    monsters.forEach(m => {
         list.innerHTML += `
-          <tr class="border-b border-gray-700">
-            <td class="px-4 py-2">${m.name}</td>
-            <td class="px-4 py-2">ATK:${m.atk} DEF:${m.def} HP:${m.hp}</td>
-            <td class="px-4 py-2">
-              <button class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-white"
-                onclick="deleteMonster('${m._id}')">❌ Delete</button>
-            </td>
-          </tr>`;
-      });
+        <li>
+            <strong>${m.name}</strong> (ATK: ${m.atk}, DEF: ${m.def}, HP: ${m.hp})  
+            <br><small>ID: ${m._id}</small>
+            <button onclick="deleteMonster('${m._id}')">❌</button>
+        </li>`;
+    });
     }
+
 
     async function addMonster() {
       const name = document.getElementById("m-name").value;

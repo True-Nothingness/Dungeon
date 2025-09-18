@@ -1,5 +1,6 @@
 const Monster = require("../models/Monster");
 const Dungeon = require("../models/Dungeon");
+const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
 const ADMIN_USERNAME = process.env.ADMIN_USER || "admin";
@@ -18,11 +19,22 @@ exports.login = (req, res) => {
   return res.status(401).json({ success: false, message: "Invalid credentials" });
 };
 
-// --- USERS (placeholder for now) ---
+// --- USERS ---
+// Get all users
 exports.getUsers = async (req, res) => {
   try {
-    // Later hook into your User model
-    res.json({ message: "List of users (admin only)" });
+    const users = await User.find().select("username email gold level pet");
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Delete user
+exports.deleteUser = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: "User deleted" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
