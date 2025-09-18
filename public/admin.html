@@ -122,35 +122,26 @@
   }
 
   async function addMonster() {
-  const name = document.getElementById("m-name").value;
-  const atk = document.getElementById("m-atk").value;
-  const def = document.getElementById("m-def").value;
-  const hp = document.getElementById("m-hp").value;
-  const xp = document.getElementById("m-xp").value;
-  const gold = document.getElementById("m-gold").value;
+    const name = document.getElementById("m-name").value;
+    const atk = parseInt(document.getElementById("m-atk").value);
+    const def = parseInt(document.getElementById("m-def").value);
+    const hp = parseInt(document.getElementById("m-hp").value);
+    const xpReward = parseInt(document.getElementById("m-xp").value);
+    const goldReward = parseInt(document.getElementById("m-gold").value);
 
-  const res = await fetch("/admin/monsters", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, atk, def, hp, xpReward: xp, goldReward: gold })
-  });
-
-  if (res.ok) {
-    Swal.fire("Success", "Monster added!", "success");
+    await fetch(`${API_BASE}/monsters`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ name, atk, def, hp, xpReward, goldReward })
+    });
     loadMonsters();
-
-    // clear inputs
     document.getElementById("m-name").value = "";
     document.getElementById("m-atk").value = "";
     document.getElementById("m-def").value = "";
     document.getElementById("m-hp").value = "";
     document.getElementById("m-xp").value = "";
     document.getElementById("m-gold").value = "";
-  } else {
-    Swal.fire("Error", "Failed to add monster", "error");
   }
-}
-
 
   async function deleteMonster(id) {
     await fetch(`${API_BASE}/monsters/${id}`, {
