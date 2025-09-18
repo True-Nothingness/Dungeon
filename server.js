@@ -10,6 +10,8 @@ const petRoutes = require('./routes/pet');
 const battleRoutes = require('./routes/battle');
 const itemRoutes = require('./routes/item');
 const characterRoutes = require('./routes/characters');
+const bodyParser = require("body-parser");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +19,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.json());
 
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
@@ -24,6 +27,7 @@ app.use('/api/pets', petRoutes);
 app.use('/api/battle', battleRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/characters', characterRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)

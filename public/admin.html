@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dungeon of Habits Admin</title>
+  <script>
+    let token = null;
+    const API_BASE = "/api/admin";
+
+    async function adminLogin() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      const res = await fetch(`${API_BASE}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+      if (data.token) {
+        token = data.token;
+        document.getElementById("login-section").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        loadMonsters();
+        loadDungeons();
+      } else {
+        alert("Login failed: " + data.message);
+      }
+    }
+
+    async function loadMonsters() {
+      const res = await fetch(`${API_BASE}/monsters`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const monsters = await res.json();
+      const list = document.getElementById("monster-list");
+      list.innerHTML = "";
+      monsters.forEach(m => {
+        list.innerHTML += `<li>
+          ${m.name} (ATK: ${m.atk}, DEF: ${m.def}, HP: ${m.hp})
+          <button onclick="deleteMonster('${m._id}')">❌</button>
+        </li>`;
+      });
+    }
+
+    async function addMonster() {
+      const name = document.getElementById("m-name").value;
+      const atk = parseInt(document.getElementById("m-atk").value);
+      const def = parseInt(document.getElementById("m-def").value);
+      const hp = parseInt(document.getElementById("m-hp").value);
+      const xpReward = parseInt(document.getElementById("m-xp").value);
+      const goldReward = parseInt(document.getElementById("m-gold").value);
+
+      await fetch(`${API_BASE}/monsters`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ name, atk, def, hp, xpReward, goldReward })
+      });
+      loadMonsters();
+    }
+
+    async function deleteMonster(id) {
+      await fetch(`${API_BASE}/monsters/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      loadMonsters();
+    }
+
+    async function loadDungeons() {
+      const res = await fetch(`${API_BASE}/dungeons`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const dungeons = await res.json();
+      const list = document.getElementById("dungeon-list");
+      list.innerHTML = "";
+      dungeons.forEach(d => {
+        const monsterNames = d.monsters.map(m => m.name).join(", ");
+        list.innerHTML += `<li>
+          Floor ${d.floor} → Monsters: [${monsterNames}]
+          <button onclick="deleteDungeon('${d._id}')">❌</button>
+        </li>`;
+      });
+    }
+
+    async function addDungeon() {
+      const floor = parseInt(document.getElementById("d-floor").value);
+      const monsterIds = document.getElementById("d-monsters").value.split(",");
+      await fetch(`${API_BASE}/dungeons`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ floor, monsters: monsterIds })
+      });
+      loadDungeons();
+    }
+
+    async function deleteDungeon(id) {
+      await fetch(`${API_BASE}/dungeons/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      loadDungeons();
+    }
+  </script>
+</head>
+<body>
+  <!-- LOGIN -->
+  <section id="login-section">
+    <h2>Admin Login</h2>
+    <input id="username" placeholder="Username"><br>
+    <input id="password" type="password" placeholder="Password"><br>
+    <button onclick="adminLogin()">Login</button>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" style="display:none;">
+    <h2>Admin Dashboard</h2>
+
+    <!-- MONSTERS -->
+    <h3>Manage Monsters</h3>
+    <ul id="monster-list"></ul>
+    <h4>Add Monster</h4>
+    <input id="m-name" placeholder="Name">
+    <input id="m-atk" placeholder="ATK">
+    <input id="m-def" placeholder="DEF">
+    <input id="m-hp" placeholder="HP">
+    <input id="m-xp" placeholder="XP Reward">
+    <input id="m-gold" placeholder="Gold Reward">
+    <button onclick="addMonster()">Add Monster</button>
+
+    <hr>
+
+    <!-- DUNGEONS -->
+    <h3>Manage Dungeons</h3>
+    <ul id="dungeon-list"></ul>
+    <h4>Add Dungeon</h4>
+    <input id="d-floor" placeholder="Floor">
+    <input id="d-monsters" placeholder="Monster IDs (comma separated)">
+    <button onclick="addDungeon()">Add Dungeon</button>
+  </section>
+</body>
+</html>
