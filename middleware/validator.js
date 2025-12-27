@@ -27,7 +27,7 @@ exports.validateRegister = [
 ];
 
 exports.validateLogin = [
-  body('email').isEmail(),
+  body('username').isString().notEmpty(),
   body('password').isString().notEmpty(),
   handleErrors
 ];
