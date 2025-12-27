@@ -21,7 +21,11 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(mongoSanitize());
+app.use(
+  mongoSanitize({
+    sanitizeQuery: false
+  })
+);
 app.set("trust proxy", 1);
 
 app.use('/api/users', userRoutes);
