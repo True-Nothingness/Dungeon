@@ -21,11 +21,16 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(
-  mongoSanitize({
-    sanitizeQuery: false
-  })
-);
+app.use((req, res, next) => {
+  // Only sanitize body and params, skip query
+  if (req.body) {
+    req.body = mongoSanitize.sanitize(req.body);
+  }
+  if (req.params) {
+    req.params = mongoSanitize.sanitize(req.params);
+  }
+  next();
+});
 app.set("trust proxy", 1);
 
 app.use('/api/users', userRoutes);
