@@ -1,5 +1,6 @@
 // server.js
 const express = require('express');
+const mongoSanitize = require('express-mongo-sanitize');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
@@ -20,6 +21,8 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(mongoSanitize());
+app.set("trust proxy", 1);
 
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
